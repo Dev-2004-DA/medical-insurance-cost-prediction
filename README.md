@@ -1,117 +1,120 @@
-# 🏥 Medical Insurance Cost Prediction  
-### Predictive Modeling of Bimodal Healthcare Costs
+# Medical Insurance Cost Prediction — ML Regression
 
-This project builds a machine learning system to predict individual medical insurance charges using demographic and lifestyle data.  
-
-The most important discovery of this project is that the target variable **charges is bimodal**, meaning the dataset actually contains **two different populations**:
-
-- **Non-smokers** → low cost, low variance  
-- **Smokers** → high cost, high variance  
-
-This explains why traditional linear regression models fail and why residuals are never normally distributed.
-
-The final selected model is a **Random Forest Regressor**, which naturally handles this multi-population structure.
+**Project completed:** January 2026  
+**Tools:** Python · Scikit-learn · Pandas · Matplotlib · Seaborn  
+**Domain:** Machine Learning · Healthcare · Regression
 
 ---
 
-## 📊 Dataset
-The dataset contains **1338 rows** with the following features:
+## Overview
 
-| Column | Description |
-|--------|------------|
-| age | Age of primary beneficiary |
-| sex | Gender (male, female) |
-| bmi | Body Mass Index |
-| children | Number of dependents |
-| smoker | Smoking status |
-| region | Residential region |
-| charges | Individual medical insurance cost |
+An end-to-end machine learning regression pipeline to predict individual medical insurance  
+charges based on patient demographics and lifestyle factors.
 
----
+The project identifies and resolves a critical non-linearity problem caused by a  
+**bimodal target distribution** (smokers vs non-smokers behave as two completely  
+different populations), leading to a final test **R² of 0.86**.
 
-## 🔍 Key Insights
-
-### 1. Bimodal Target Distribution
-KDE and boxplots showed that **charges** come from two different distributions:
-
-- Non-smokers → mostly below 15,000  
-- Smokers → heavy right tail reaching above 60,000  
-
-Because of this mixture, the residuals **cannot be normally distributed**.  
-This is not a modeling error — it is a **data property**.
+**Key result:** Random Forest achieved **R² = 0.86** on the test set after resolving  
+the non-linearity issue that caused linear models to underperform significantly.
 
 ---
 
-### 2. Outliers Are Business Signals
-Using IQR and 3σ rules:
+## Problem Statement
 
-- 169 values were detected as outliers  
-- **157 (≈92%) belong to smokers**
-
-These points represent high-risk customers and must be kept.  
-Removing them would make the model unrealistic.
+Predicting insurance costs is not straightforward — the target variable (charges) is  
+heavily influenced by smoking status, which creates two distinct cost distributions  
+in the data. A single linear model cannot capture both populations simultaneously,  
+which is why naive regression fails on this dataset without proper diagnosis.
 
 ---
 
-### 3. Model Comparison
+## Methodology
 
-| Model | Test R² | Test RMSE |
-|--------|----------|-------------|
-| Linear Regression | ~0.746 | ~5751 |
-| ElasticNet | ~0.746 | ~5750 |
-| ElasticNet + Polynomial | ~0.849 | ~4437 |
-| Decision Tree | ~0.854 | ~4364 |
-| **Random Forest (Final)** | **0.859** | **~4277** |
-| RF + Polynomial | ~0.86 | ~4214 |
+### 1. Exploratory Data Analysis
+- Identified **bimodal distribution** in insurance charges caused by smoker vs non-smoker split
+- Visualized feature correlations — smoking status emerged as the dominant driver
+- Detected skewness in the target variable requiring special handling
 
----
+### 2. Preprocessing Pipeline
+- Built **ColumnTransformer** to handle mixed feature types cleanly
+- Applied OneHotEncoding for categorical features (sex, smoker, region)
+- Applied StandardScaler for numerical features (age, BMI, children)
+- All transformations fitted on training set only — no data leakage
 
-### 4. Feature Importance (Random Forest)
+### 3. Models Compared
 
-| Feature | Importance |
-|---------|------------|
-| Smoker | ~70% |
-| Age | ~10% |
-| BMI | ~15% |
-| Others | <5% |
+| Model | Test R² | Notes |
+|---|---|---|
+| Linear Regression | Low | Fails due to non-linearity |
+| ElasticNet | Moderate | Better regularization, still limited |
+| Random Forest | **0.86** | Handles non-linearity naturally |
 
-Smoking is the dominant factor affecting medical insurance cost.
+### 4. Non-Linearity Resolution
+- Diagnosed why linear models failed using residual plots
+- Random Forest naturally handles the smoker/non-smoker split  
+  by learning separate decision paths
+- Confirmed with residual diagnostics — errors random and evenly distributed
 
----
+### 5. Feature Importance Analysis
+- **Smoking status: ~70% influence** on predicted charges
+- Age and BMI as secondary drivers
+- Quantified using Random Forest feature importance scores
 
-## 🧠 Final Conclusion
-- The data is **non-linear and bimodal**.
-- Linear models fail due to violated assumptions.
-- Tree-based ensemble models handle this structure naturally.
-- **Random Forest is the best model** for this problem.
-
-Residual non-normality is not a flaw — it is a reflection of real-world population differences.
-
----
-
-## 🛠️ Tech Stack
-- Python  
-- Pandas, NumPy  
-- Seaborn, Matplotlib  
-- Scikit-learn  
-- SciPy  
+### 6. Validation
+- **5-fold cross-validation** for generalization check
+- Bias-variance diagnostics to ensure model is not overfitting
 
 ---
 
-## 📈 Workflow
-1. Exploratory Data Analysis  
-2. Outlier investigation (retain real extremes)  
-3. Categorical encoding  
-4. Polynomial feature engineering  
-5. Model training & tuning (GridSearchCV)  
-6. Residual diagnostics  
-7. Feature importance analysis  
+## Key Findings
+
+- Smoking status alone explains ~70% of variance in insurance charges
+- Linear models are fundamentally wrong for this dataset without transformation
+- Residual diagnostics are essential — good R² alone does not confirm a good model
+- ColumnTransformer is the correct way to handle mixed-type features in production pipelines
 
 ---
 
-##
-> “The residuals are non-normal due to the bimodal nature of the target variable.  
-> 92% of the outliers belong to smokers. These are valid observations, and the Random Forest model successfully captures this variance.”
+## Repository Structure
+
+```
+medical-insurance-cost-prediction/
+├── medical_insurance_cost_prediction.ipynb   # Full analysis notebook
+├── README.md
+```
+
+> Dataset sourced from Kaggle — download and place in the root folder before running.
 
 ---
 
+## How to Run
+
+1. Clone the repository
+```bash
+git clone https://github.com/Dev-2004-DA/medical-insurance-cost-prediction.git
+```
+
+2. Install dependencies
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn
+```
+
+3. Download the dataset from Kaggle and place it in the project folder
+
+4. Open the notebook
+```bash
+jupyter notebook medical_insurance_cost_prediction.ipynb
+```
+
+---
+
+## Skills Demonstrated
+
+`Regression` `Random Forest` `ElasticNet` `Linear Regression`  
+`ColumnTransformer` `Feature Importance` `Residual Diagnostics`  
+`Bias-Variance Tradeoff` `Cross-Validation` `Scikit-learn` `Python`
+
+---
+
+*Part of my Data Analytics portfolio — [github.com/Dev-2004-DA](https://github.com/Dev-2004-DA)*
